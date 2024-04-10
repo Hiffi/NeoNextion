@@ -1,14 +1,14 @@
 {
   "name": "NeoNextion",
   "keywords": "neonextion, nextion, hmi, display",
-  "description": "Arduino library for controlling Nextion displays",
-  "url": "https://dannixon.github.io/NeoNextion",
+  "description": "Arduino library for controlling Nextion displays. Edited an improved by Björn Hoffmeister",
+  "url": "https://github.com/Hiffi/NeoNextion/",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/DanNixon/NeoNextion.git"
+    "url": "https://github.com/Hiffi/NeoNextion.git"
   },
-  "version": "2.2.0",
+  "version": "2.4.0",
   "exclude": [
     "extra",
     "Doxyfile"
