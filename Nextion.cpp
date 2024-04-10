@@ -375,22 +375,58 @@ bool Nextion::checkCommandComplete()
  */
 bool Nextion::receiveNumber(uint32_t *number)
 {
-  uint8_t temp[8] = {0};
+	bool have_header_flag = false;
+	uint8_t temp[8] = {0};
+	size_t pos = 0;
+	uint8_t flag_count = 0;
 
-  if (!number)
-    return false;
+	if (!number)
+	return false;
 
-  if (sizeof(temp) != m_serialPort.readBytes((char *)temp, sizeof(temp)))
-    return false;
+	uint32_t start = millis();
+	while (millis() - start <= m_timeout)
+	{
+	  while (m_serialPort.available())
+	  {
+		char c = m_serialPort.read();
+		if (have_header_flag)
+		{
+		  if (c == 0xFF || c == 0xFFFFFFFF)
+		  {
+			flag_count++;
+			temp[pos] = c;
+			pos++;
+			if (flag_count >= 3)
+			  break;
+		  }
+		  else
+		  {
+			temp[pos] = c;
+			pos++;
+			if (pos == sizeof(temp)-1)
+			  break;
+		  }
+		}
+		else if (c == NEX_RET_NUMBER_HEAD) {
+		  have_header_flag = true;
+		  temp[pos] = c;
+		  pos++;
+		}
+	  }
 
-  if (temp[0] == NEX_RET_NUMBER_HEAD && temp[5] == 0xFF && temp[6] == 0xFF &&
-      temp[7] == 0xFF)
-  {
-    *number = (temp[4] << 24) | (temp[3] << 16) | (temp[2] << 8) | (temp[1]);
-    return true;
-  }
+	  if (flag_count >= 3)
+		break;
+	}
 
-  return false;
+	if (temp[0] == NEX_RET_NUMBER_HEAD && temp[5] == 0xFF && temp[6] == 0xFF &&
+	  temp[7] == 0xFF)
+	{
+	*number = ((uint32_t)temp[4] << 24) | ((uint32_t)temp[3] << 16) | ((uint32_t)temp[2] << 8) | (temp[1]);
+
+	return true;
+	}
+
+	return false;
 }
 
 /*!
